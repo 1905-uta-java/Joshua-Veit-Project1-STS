@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -44,6 +45,9 @@ public class LoginServlet extends HttpServlet {
 			ObjectMapper mapper = new ObjectMapper();
 			
 			String tokenString = mapper.writeValueAsString(token);
+			
+//			Cookie tokenCookie = new Cookie("Project1AuthToken", tokenString);
+//			response.addCookie(tokenCookie);
 			
 			writer.append(tokenString);
 			

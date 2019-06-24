@@ -28,4 +28,12 @@ public class InputCheckingUtil {
 		
 		return true;
 	}
+	
+	public static boolean isStringBoolean(String input) {
+		
+		if("true".equals(input) || "false".equals(input))
+			return true;
+		
+		return false;
+	}
 }

@@ -1,10 +1,10 @@
 package com.revature.project1.servlets;
 
 import java.io.IOException;
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -40,34 +40,10 @@ public class EmployeeServlet extends HttpServlet {
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		ObjectMapper om = new ObjectMapper();
+		AuthToken token = authService.getValidToken(request, response);
 		
-		String tokenString = request.getParameter("authToken");
-		
-		if(tokenString == null || tokenString.isEmpty()) {
-			response.getWriter().write("missing authToken");
-			response.setStatus(401);
+		if(token == null)
 			return;
-		}
-		
-		AuthToken token;
-		
-		try {
-			
-			token = om.readValue(tokenString, AuthToken.class);
-			
-		} catch(IOException e) {
-			
-			response.getWriter().write("invalid authToken");
-			response.setStatus(401);
-			return;
-		}
-		
-		if(!authService.verifyToken(token)) {
-			response.getWriter().write("invalid authToken");
-			response.setStatus(401);
-			return;
-		}
 		
 		String source = request.getParameter("source");
 		
@@ -76,6 +52,8 @@ public class EmployeeServlet extends HttpServlet {
 			response.setStatus(400);
 			return;
 		}
+
+		ObjectMapper om = new ObjectMapper();
 		
 		if("self".equals(source)) {
 			
@@ -105,36 +83,14 @@ public class EmployeeServlet extends HttpServlet {
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+	protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		ObjectMapper om = new ObjectMapper();
 		
-		String tokenString = request.getParameter("authToken");
+		AuthToken token = authService.getValidToken(request, response);
 		
-		if(tokenString == null || tokenString.isEmpty()) {
-			response.getWriter().write("missing authToken");
-			response.setStatus(401);
+		if(token == null)
 			return;
-		}
-		
-		AuthToken token;
-		
-		try {
-			
-			token = om.readValue(tokenString, AuthToken.class);
-			
-		} catch(IOException e) {
-			
-			response.getWriter().write("invalid authToken");
-			response.setStatus(401);
-			return;
-		}
-		
-		if(!authService.verifyToken(token)) {
-			response.getWriter().write("invalid authToken");
-			response.setStatus(401);
-			return;
-		}
 		
 		String updateType = request.getParameter("updateType");
 		
@@ -179,29 +135,54 @@ public class EmployeeServlet extends HttpServlet {
 			
 		} else if("password".equals(updateType)) {
 			
-			String password = request.getParameter("password");
-			
-			if(password == null || password.isEmpty()) {
+			String oldPassword = request.getParameter("oldPassword");
 
-				response.getWriter().write("missing password");
+			if(oldPassword == null || oldPassword.isEmpty()) {
+				
+				response.getWriter().write("missing oldPassword");
 				response.setStatus(400);
 				return;
 			}
 			
-			if(!PasswordUtil.isValidPassword(password)) {
-
-				response.getWriter().write("invalid password");
+			Employee emp = empService.getEmployee(token.getUserId());
+			
+			if(authService.verifyPassword(oldPassword, emp.getEmail()) == null) {
+				
+				response.getWriter().write("incorrect oldPassword");
 				response.setStatus(400);
 				return;
 			}
 			
-			empService.updatePassword(token.getUserId(), password);
+			String newPassword = request.getParameter("newPassword");
+			
+			if(newPassword == null || newPassword.isEmpty()) {
+				
+				response.getWriter().write("missing newPassword");
+				response.setStatus(400);
+				return;
+			}
+			
+			if(!PasswordUtil.isValidPassword(newPassword)) {
+
+				response.getWriter().write("invalid newPassword");
+				response.setStatus(400);
+				return;
+			}
+			
+			empService.updatePassword(token.getUserId(), newPassword);
 			
 			response.setStatus(200);
 			
 		} else if("data".equals(updateType)) {
 			
 			String empString = request.getParameter("employee");
+			
+			if(empString == null || empString.isEmpty()) {
+
+				response.getWriter().write("missing employee data");
+				response.setStatus(400);
+				return;
+			}
 			
 			Employee emp;
 			
@@ -211,8 +192,8 @@ public class EmployeeServlet extends HttpServlet {
 				
 			} catch (IOException e) {
 				
-				response.getWriter().write("missing employee data");
-				response.setStatus(401);
+				response.getWriter().write("invalid employee data");
+				response.setStatus(400);
 				return;
 			}
 			

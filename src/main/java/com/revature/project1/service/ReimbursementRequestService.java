@@ -31,7 +31,7 @@ public class ReimbursementRequestService {
 		dao.createReimbursementRequest(newRequest);
 	}
 	
-	public void resolveReimbursementRequest(int requestId, boolean approve, int managerId) {
+	public boolean resolveReimbursementRequest(int requestId, boolean approve, int managerId) {
 		
 		List<ReimbursementRequest> subordinateRequests = getSubordinateRequests(managerId);
 		
@@ -46,12 +46,14 @@ public class ReimbursementRequestService {
 		}
 		
 		if(request == null)
-			return;
+			return false;
 		
 		request.setManagerID(managerId);
 		request.setWasApproved(approve);
 		
 		dao.updateReimbursementRequest(request);
+		
+		return true;
 	}
 	
 	public ReimbursementRequest getReimbursementRequest(int requestID) {

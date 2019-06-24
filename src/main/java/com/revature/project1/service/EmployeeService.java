@@ -60,4 +60,23 @@ public class EmployeeService {
 		
 		return dao.getEmployeeByEmail(email) != null;
 	}
+	
+	public boolean isManagerOf(int managerID, int employeeID) {
+		
+		if(managerID <= 0 || employeeID <= 0)
+			return false;
+		
+		List<Employee> subordinates = getSubordinates(managerID);
+		
+		if(subordinates.isEmpty())
+			return false;
+		
+		for(Employee emp : subordinates) {
+			
+			if(emp.getEmployeeID() == employeeID)
+				return true;
+		}
+		
+		return false;
+	}
 }
