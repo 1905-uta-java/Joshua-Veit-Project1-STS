@@ -507,14 +507,13 @@ public class Project1Tests {
 		
 		reqService.submitRequest(2, 5.5f);
 		
-		ReimbursementRequest request = reqService.getReimbursementRequest(21);
-
-		reqService.removeRequest(21);
+		List<ReimbursementRequest> databaseRequests = reqService.getUsersRequests(2);
+		ReimbursementRequest request = databaseRequests.get(databaseRequests.size() - 1);;
+		
+		reqService.removeRequest(request.getRequestID());
 		
 		if(request.getAmount() != 5.5f)
 			fail();
-		
-		assertEquals(request.getEmployeeID(), 2);
 	}
 	
 	// AuthService tests

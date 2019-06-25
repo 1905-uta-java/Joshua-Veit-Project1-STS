@@ -125,6 +125,22 @@ public class EmployeeServlet extends HttpServlet {
 				return;
 			}
 			
+			String password = request.getParameter("password");
+			
+			if(password == null || password.isEmpty()) {
+				
+				response.getWriter().write("missing password");
+				response.setStatus(400);
+				return;
+			}
+			
+			if(authService.verifyPassword(password, empService.getEmployee(token.getUserId()).getEmail()) == null){
+				
+				response.getWriter().write("incorrect password");
+				response.setStatus(403);
+				return;
+			}
+			
 			Employee emp = empService.getEmployee(token.getUserId());
 			
 			emp.setEmail(email);
