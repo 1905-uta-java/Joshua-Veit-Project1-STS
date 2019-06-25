@@ -58,6 +58,8 @@ public class AuthService {
 		
 		String tokenString = request.getParameter("authToken");
 		
+		System.out.println("authToken: " + tokenString);
+		
 		if(tokenString == null || tokenString.isEmpty()) {
 			response.getWriter().write("missing authToken");
 			response.setStatus(401);
