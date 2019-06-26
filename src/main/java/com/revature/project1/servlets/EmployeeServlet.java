@@ -200,6 +200,8 @@ public class EmployeeServlet extends HttpServlet {
 				return;
 			}
 			
+			System.out.println("Updated Employee: " + empString);
+			
 			Employee emp;
 			
 			try {

@@ -3,9 +3,12 @@ package com.revature.project1.models;
 import java.util.Arrays;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 /*
  * A class representing employee records
  */
+@JsonIgnoreProperties({"passwordHash","passwordSalt"})
 public class Employee {
 	
 	private int employeeID;
