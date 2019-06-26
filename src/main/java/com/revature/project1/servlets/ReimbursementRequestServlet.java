@@ -36,7 +36,7 @@ public class ReimbursementRequestServlet extends HttpServlet {
         super();
         // TODO Auto-generated constructor stub
     }
-
+    
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
@@ -85,10 +85,8 @@ public class ReimbursementRequestServlet extends HttpServlet {
 				response.setStatus(400);
 				return;
 			}
-				
 			
 			int employeeID;
-		 
 			
 			try {
 				
@@ -176,57 +174,109 @@ public class ReimbursementRequestServlet extends HttpServlet {
 		if(token == null)
 			return;
 		
-		String requestIDString = request.getParameter("requestID");
+		String target = request.getParameter("target");
 		
-		if(requestIDString == null || requestIDString.isEmpty()) {
+		if(target == null || target.isEmpty()) {
 			
-			response.getWriter().write("missing requestID");
+			response.getWriter().write("missing target");
 			response.setStatus(400);
 			return;
 		}
-		
-		int requestID;
-		
-		try {
+		if("single".equals(target)) {
 			
-			requestID = Integer.parseInt(requestIDString);
+			String requestIDString = request.getParameter("requestID");
 			
-		} catch(NumberFormatException e) {
+			if(requestIDString == null || requestIDString.isEmpty()) {
+				
+				response.getWriter().write("missing requestID");
+				response.setStatus(400);
+				return;
+			}
 			
-			response.getWriter().write("invalid requestID");
+			int requestID;
+			
+			try {
+				
+				requestID = Integer.parseInt(requestIDString);
+				
+			} catch(NumberFormatException e) {
+				
+				response.getWriter().write("invalid requestID");
+				response.setStatus(400);
+				return;
+			}
+			
+			if(requestID <= 0) {
+				
+				response.getWriter().write("invalid requestID");
+				response.setStatus(400);
+				return;
+			}
+			
+			String approveString = request.getParameter("approve");
+			
+			if(approveString == null || approveString.isEmpty()) {
+				
+				response.getWriter().write("missing approve");
+				response.setStatus(400);
+				return;
+			}
+			
+			if(!InputCheckingUtil.isStringBoolean(approveString)) {
+				
+				response.getWriter().write("invalid approve");
+				response.setStatus(400);
+				return;
+			}
+			
+			boolean approve = Boolean.parseBoolean(approveString);
+			
+			if(!reqService.resolveReimbursementRequest(requestID, approve, token.getUserId())) {
+				
+				response.getWriter().write("illegal access - not manager of submitting employee");
+				response.setStatus(403);
+				return;
+			}
+			
+		} else if("multiple".equals(target)) {
+			
+			
+			String requestsString = request.getParameter("requests");
+			
+			if(requestsString == null || requestsString.isEmpty()) {
+				
+				response.getWriter().write("missing requests");
+				response.setStatus(400);
+				return;
+			}
+			
+			ReimbursementRequest[] requests;
+			
+			try {
+				
+				requests = om.readValue(requestsString, ReimbursementRequest[].class);
+				
+			} catch (IOException e) {
+				
+				response.getWriter().write("invalid requests");
+				response.setStatus(400);
+				return;
+				
+			}
+			
+			for(int i = 0; i < requests.length; i++) {
+				
+				if(!reqService.resolveReimbursementRequest(requests[i].getRequestID(), requests[i].getWasApproved(), token.getUserId())) {
+					
+					response.getWriter().write("illegal access - not manager of submitting employee");
+					response.setStatus(403);
+					return;
+				}
+			}
+		} else {
+			
+			response.getWriter().write("invalid target");
 			response.setStatus(400);
-			return;
-		}
-		
-		if(requestID <= 0) {
-			
-			response.getWriter().write("invalid requestID");
-			response.setStatus(400);
-			return;
-		}
-		
-		String approveString = request.getParameter("approve");
-		
-		if(approveString == null || approveString.isEmpty()) {
-			
-			response.getWriter().write("missing approve");
-			response.setStatus(400);
-			return;
-		}
-		
-		if(!InputCheckingUtil.isStringBoolean(approveString)) {
-			
-			response.getWriter().write("invalid approve");
-			response.setStatus(400);
-			return;
-		}
-		
-		boolean approve = Boolean.parseBoolean(approveString);
-		
-		if(!reqService.resolveReimbursementRequest(requestID, approve, token.getUserId())) {
-			
-			response.getWriter().write("illegal access - not manager of submitting employee");
-			response.setStatus(403);
 			return;
 		}
 		

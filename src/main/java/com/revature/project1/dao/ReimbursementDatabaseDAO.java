@@ -116,6 +116,8 @@ public class ReimbursementDatabaseDAO implements ReimbursementDAO {
 			e.printStackTrace();
 		}
 		
+		subordinates.sort((Employee emp1, Employee emp2) -> emp1.getEmployeeID() - emp2.getEmployeeID());
+		
 		return subordinates;
 	}
 
@@ -291,9 +293,11 @@ public class ReimbursementDatabaseDAO implements ReimbursementDAO {
 			e.printStackTrace();
 		}
 		
+		requests.sort((ReimbursementRequest req1, ReimbursementRequest req2) -> req1.getRequestID() - req2.getRequestID());
+		
 		return requests;
 	}
-
+	
 	public List<ReimbursementRequest> getRequestsForManager(int managerID) {
 		
 		List<ReimbursementRequest> requests = new ArrayList<ReimbursementRequest>();
@@ -332,6 +336,8 @@ public class ReimbursementDatabaseDAO implements ReimbursementDAO {
 			
 			e.printStackTrace();
 		}
+		
+		requests.sort((ReimbursementRequest req1, ReimbursementRequest req2) -> req1.getRequestID() - req2.getRequestID());
 		
 		return requests;
 	}
