@@ -16,6 +16,8 @@ public class ConnectionUtil {
 			Driver myDriver = new oracle.jdbc.driver.OracleDriver();
 			DriverManager.registerDriver( myDriver );
 			
+			String catalinaHome = System.getenv("CATALINA_HOME");
+			System.out.println(catalinaHome);
 			String url = System.getenv("DB_URL");
 			System.out.println(url);
 			String username = System.getenv("DB_USERNAME");
