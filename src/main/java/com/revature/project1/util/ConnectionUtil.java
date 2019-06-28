@@ -17,8 +17,11 @@ public class ConnectionUtil {
 			DriverManager.registerDriver( myDriver );
 			
 			String url = System.getenv("DB_URL");
+			System.out.println(url);
 			String username = System.getenv("DB_USERNAME");
+			System.out.println(username);
 			String password = System.getenv("DB_PASSWORD");
+			System.out.println(password);
 			
 			if(connection == null || connection.isClosed())
 				connection = DriverManager.getConnection(url, username, password);
